@@ -1,0 +1,24 @@
+[package]
+name = "quickchat"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.28", features = ["full"] }
+async-openai = "0.14"
+dotenv = "0.15"
+dotenv_codegen = "0.15"
+tokio-stream = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+anyhow = "1.0"
+reqwest = { version = "0.11", features = ["json", "gzip", "brotli", "deflate", "stream"] }
+warp = "0.3.7"
+futures-util = "0.3.31"
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "subsystem=windows"]

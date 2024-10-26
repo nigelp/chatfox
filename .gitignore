@@ -1,0 +1,16 @@
+# Ignore Rust build artifacts
+/target
+
+# Ignore environment variables file
+.env
+
+# Ignore other unneeded files and directories
+/dist
+.DS_Store
+*.log
+
+# Ignore IDE/editor specific files
+.idea/
+.vscode/
+*.pdb
+*.rlib

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat MVP</title>
+    <meta name="viewport" content="width=800, height=600, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            background: linear-gradient(135deg, #e6f0ff 0%, #f0f4f8 100%);
+            max-width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0 20px;
+            box-sizing: border-box;
+            padding-bottom: 40px;
+        }
+        .banner {
+            position: sticky;
+            top: 0;
+            height: 50px;
+            z-index: 100;
+            background: linear-gradient(135deg, #2c5282, #4299e1);
+            color: white;
+            padding: 0;
+            margin: 0 -20px 20px -20px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .banner h1 {
+            margin: 0;
+            font-size: 1.6em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+            font-weight: 800;
+            text-align: center;
+            display: inline-block;
+        }
+        @media (max-width: 480px) {
+            .banner h1 {
+                font-size: 1.5em;
+            }
+        }
+        @media (min-width: 800px) {
+            body {
+                width: 800px;
+                height: 600px;
+            }
+        }
+        @media (max-width: 800px) {
+            #chat-container {
+                height: calc(100vh - 240px);
+            }
+        }
+        #chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            height: calc(100vh - 280px);
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            scrollbar-width: thin;
+        }
+        #input-container {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        #user-input {
+            flex: 1;
+            min-width: 180px;
+            flex-grow: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        #user-input:focus {
+            border-color: #4299e1;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .button-container button {
+            white-space: nowrap;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .button-container button:hover {
+            background-color: #2b6cb0;
+            transform: translateY(-1px);
+        }
+        @media (max-width: 480px) {
+            #input-container {
+                padding: 10px;
+            }
+            .button-container button {
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+            .button-container {
+                gap: 5px;
+            }
+            #user-input {
+                padding: 8px;
+                min-width: 120px;
+            }
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            position: relative;
+            animation: fadeIn 0.3s ease-in;
+            line-height: 1.5;
+        }
+        .user-message {
+            background-color: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            margin-left: 20%;
+            margin-right: 5px;
+            box-shadow: 0 2px 4px rgba(66, 153, 225, 0.1);
+        }
+        .ai-message {
+            background-color: #f7fafc;
+            border-left: 4px solid #718096;
+            margin-right: 20px;
+            transform-origin: left;
+            box-shadow: 0 2px 4px rgba(113, 128, 150, 0.1);
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        #model-indicator {
+            margin: 0 0 15px 0;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: #4a5568;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        #model-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #4299e1, #2c5282);
+            opacity: 0.8;
+            border-radius: 4px 0 0 4px;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <h1>✨ ChatFox ✨</h1>
+    </div>
+    <div id="model-indicator">Current Model: OpenAI</div>
+    <div id="chat-container"></div>
+    <div id="input-container">
+        <select id="model-select" style="padding: 10px; border-radius: 5px; border: 2px solid #e2e8f0;">
+            <option value="gpt-3.5-turbo">GPT-3.5-Turbo</option>
+            <option value="gpt-3.5-turbo-0125">GPT-3.5-Turbo (Latest)</option>
+            <option value="gpt-4">GPT-4</option>
+            <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
+            <option value="claude-2">Claude 2</option>
+            <option value="claude-3-5-sonnet-latest">Claude 3.5 Sonnet</option>
+        </select>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <div class="button-container">
+            <button id="send-button" onclick="sendMessage()">Send</button>
+            <button id="switch-button" onclick="switchModel()">Switch Model</button>
+        </div>
+    </div>
+
+    <script>
+        let usingOpenAI = true;
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const modelSelect = document.getElementById('model-select');
+        const modelIndicator = document.getElementById('model-indicator');
+
+        function appendMessage(content, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            messageDiv.textContent = content;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function switchModel() {
+            usingOpenAI = !usingOpenAI;
+            const options = modelSelect.options;
+            for (let i = 0; i < options.length; i++) {
+                const isOpenAIModel = ['gpt-3.5-turbo', 'gpt-3.5-turbo-0125', 'gpt-4', 'gpt-4-turbo-preview'].includes(options[i].value);
+                options[i].style.display = (usingOpenAI && isOpenAIModel) || (!usingOpenAI && !isOpenAIModel) ? '' : 'none';
+            }
+            modelSelect.value = usingOpenAI ? 'gpt-3.5-turbo' : 'claude-2';
+            const model = modelSelect.options[modelSelect.selectedIndex].text;
+            modelIndicator.textContent = `Current Model: ${model}`;
+        }
+
+        const ws = new WebSocket('ws://localhost:3030/chat');
+
+        ws.onmessage = function(event) {
+            const aiPrefix = usingOpenAI ? 'OpenAI: ' : 'Claude: ';
+            appendMessage(`${aiPrefix}${event.data}`, false);
+        };
+
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = function() {
+            appendMessage('Connection closed. Please refresh the page.', false);
+        };
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            appendMessage(message, true);
+            userInput.value = '';
+
+            ws.send(JSON.stringify({
+                message: message,
+                using_openai: usingOpenAI,
+                model: modelSelect.value
+            }));
+        }
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
